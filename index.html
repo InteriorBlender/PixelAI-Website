@@ -6,6 +6,8 @@
   <title>Pixel AI - Blender AI Material Addon</title>
   <link rel="icon" href="img/5.png" type="image/png" />
   <link rel="stylesheet" href="index.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="particle-data.js"></script>
   <script src="index.js" defer></script>
 </head>
 <body>
@@ -29,29 +31,28 @@
         <div class="feature-strip">
           <div class="mini-card">AI Rendering</div>
           <div class="mini-card">Material From Rendering</div>
-          <div class="mini-card">Image to Material</div>
           <div class="mini-card">Generate PBR</div>
+          <div class="mini-card">Text to Material</div>
         </div>
       </div>
-      <div class="visual">
-        <div class="scan-line"></div>
-        <div class="scan-effect" aria-hidden="true">
-          <div class="scan-grid"></div>
-          <div class="scan-beam"></div>
-          <div class="scan-node"></div>
-          <div class="scan-outputs">
-            <div class="scan-output albedo"><span></span><strong>ALBEDO</strong><em>AI ANALYZED</em></div>
-            <div class="scan-output normal"><span></span><strong>NORMAL</strong><em>AI ANALYZED</em></div>
-            <div class="scan-output roughness"><span></span><strong>ROUGHNESS</strong><em>AI ANALYZED</em></div>
-            <div class="scan-output displacement"><span></span><strong>DISPLACEMENT</strong><em>AI ANALYZED</em></div>
-          </div>
+      <div class="visual-area">
+        <div class="visual">
+          <svg class="material-zones" viewBox="0 0 1736 906" aria-label="Selectable material areas" preserveAspectRatio="none">
+            <!-- Material zone positions are edited here: each polygon uses x,y points in the 1736x906 image box. Later polygons sit above earlier ones. -->
+            <polygon class="material-zone is-active" data-material="wood" tabindex="0" role="button" aria-label="Select wood wall material" points="450,72 1015,72 1015,420 940,420 940,522 450,522" />
+            <polygon class="material-zone" data-material="marble" tabindex="0" role="button" aria-label="Select marble wall material" points="1015,72 1276,72 1276,546 1015,546" />
+            <polygon class="material-zone" data-material="rug" tabindex="0" role="button" aria-label="Select rug material" points="0,640 1736,640 1736,906 0,906" />
+            <polygon class="material-zone" data-material="sofa" tabindex="0" role="button" aria-label="Select sofa fabric material" points="485,528 1130,528 1238,600 1620,590 1736,660 1736,770 432,770 362,650" />
+            <polygon class="material-zone" data-material="leather" tabindex="0" role="button" aria-label="Select leather chair material" points="120,512 276,520 386,690 318,812 92,798 0,650" />
+            <polygon class="material-zone" data-material="table" tabindex="0" role="button" aria-label="Select coffee table material" points="740,660 1088,640 1260,704 1198,786 742,782 592,708" />
+          </svg>
+          <canvas id="c" class="material-grid-canvas" aria-hidden="true"></canvas>
         </div>
-        <div class="floating-panel">
-          <h3>AI ANALYSIS</h3>
-          <div class="map-row"><span>Albedo</span><div class="bar"></div></div>
-          <div class="map-row"><span>Normal</span><div class="bar"></div></div>
-          <div class="map-row"><span>Roughness</span><div class="bar"></div></div>
-          <div class="map-row"><span>Displacement</span><div class="bar"></div></div>
+        <div class="scan-outputs" aria-hidden="true">
+          <div class="scan-output albedo"><span></span><strong>ALBEDO</strong><em>AI ANALYZED</em></div>
+          <div class="scan-output normal"><span></span><strong>NORMAL</strong><em>AI ANALYZED</em></div>
+          <div class="scan-output roughness"><span></span><strong>ROUGHNESS</strong><em>AI ANALYZED</em></div>
+          <div class="scan-output displacement"><span></span><strong>DISPLACEMENT</strong><em>AI ANALYZED</em></div>
         </div>
       </div>
     </section>
@@ -60,35 +61,123 @@
       <h2 class="section-title">A complete AI material workflow.</h2>
       <p class="section-text">Designed for artists who want faster material creation without leaving Blender. Use AI to generate, analyze, refine, tile, upscale, and clean textures for professional rendering.</p>
       <div class="grid">
-        <div class="card">
+        <div class="card material-rendering-card">
           <h3>Material From Rendering</h3>
           <p>Extract material information from a finished render and rebuild usable material assets for your Blender scene.</p>
-          <div class="material-preview"></div>
+          <div class="material-demo" aria-label="Click a material area to reveal the albedo texture">
+            <svg class="demo-material-zones" viewBox="0 0 1736 906" aria-hidden="true" preserveAspectRatio="none">
+              <polygon class="demo-material-zone" data-material="wood" points="450,72 1015,72 1015,420 940,420 940,522 450,522" />
+              <polygon class="demo-material-zone" data-material="marble" points="1015,72 1276,72 1276,546 1015,546" />
+              <polygon class="demo-material-zone" data-material="rug" points="0,640 1736,640 1736,906 0,906" />
+              <polygon class="demo-material-zone" data-material="sofa" points="485,528 1130,528 1238,600 1620,590 1736,660 1736,770 432,770 362,650" />
+              <polygon class="demo-material-zone" data-material="leather" points="120,512 276,520 386,690 318,812 92,798 0,650" />
+              <polygon class="demo-material-zone" data-material="table" points="740,660 1088,640 1260,704 1198,786 742,782 592,708" />
+            </svg>
+            <div class="demo-albedo-pop">
+              <span></span>
+              <strong>ALBEDO</strong>
+            </div>
+          </div>
         </div>
-        <div class="card">
-          <h3>Image to Material</h3>
-          <p>Turn reference images into material-ready textures with AI-assisted interpretation and map creation.</p>
-          <div class="material-preview"></div>
+        <div class="card ai-rendering-card">
+          <div class="ai-sticky-stage">
+            <h3>AI Rendering</h3>
+            <p>Compare the original visual against AI-generated rendering stages in one scroll-driven image stack.</p>
+            <div class="ai-comparator" aria-label="AI rendering comparison">
+              <div class="ai-layer original">
+                <img src="img/original_image.png" alt="Original rendering" />
+                <span>ORIGINAL</span>
+              </div>
+              <div class="ai-layer ai-stage-one">
+                <img src="img/AI_image.png" alt="AI rendering stage 1" />
+                <span>AI RENDER 01</span>
+              </div>
+              <div class="ai-layer ai-stage-two">
+                <img src="img/AI_image2.png" alt="AI rendering stage 2" />
+                <span>AI RENDER 02</span>
+              </div>
+              <div class="ai-layer ai-stage-three">
+                <img src="img/AI_image3.png" alt="AI rendering stage 3" />
+                <span>AI RENDER 03</span>
+              </div>
+              <div class="ai-divider first"></div>
+              <div class="ai-divider second"></div>
+              <div class="ai-divider third"></div>
+            </div>
+          </div>
         </div>
-        <div class="card">
+        <div class="card pbr-card">
           <h3>Generate PBR</h3>
           <p>Create essential PBR maps including albedo, roughness, normal, height, metallic, and AO.</p>
-          <div class="material-preview"></div>
+          <div class="pbr-demo" aria-label="PBR lighting preview">
+            <svg class="pbr-stage" viewBox="0 0 1600 820" role="img" aria-label="Base color lit by height map">
+              <defs>
+                <filter id="pbr-bump" x="0" y="0" width="1600" height="820" filterUnits="userSpaceOnUse">
+                  <feImage href="img/PBRBaseColor.png" x="0" y="0" width="1600" height="820" preserveAspectRatio="xMidYMid slice" result="texture" />
+                  <feImage href="img/Heightmap.png" x="0" y="0" width="1600" height="820" preserveAspectRatio="xMidYMid slice" result="bumpMap" />
+                  <feColorMatrix in="bumpMap" type="luminanceToAlpha" result="bumpAlpha" />
+                  <feDiffuseLighting in="bumpAlpha" surfaceScale="3.2" diffuseConstant="1.25" result="shading">
+                    <fePointLight id="pbr-light" x="760" y="220" z="150" />
+                  </feDiffuseLighting>
+                  <feBlend in="texture" in2="shading" mode="multiply" />
+                </filter>
+              </defs>
+              <rect width="1600" height="820" filter="url(#pbr-bump)" />
+            </svg>
+          </div>
         </div>
-        <div class="card">
+        <div class="card text-material-card">
+          <h3>Text to Material</h3>
+          <p>Turn material prompts into finished textures through an automatic particle reconstruction preview.</p>
+          <div class="particulate-demo" aria-label="Text to material particle reconstruction">
+            <canvas id="text-material-canvas"></canvas>
+            <div class="particulate-label">
+              <span>TEXT PROMPT</span>
+              <strong>AI MATERIAL SYNTHESIS</strong>
+            </div>
+          </div>
+        </div>
+        <div class="card seamless-card">
           <h3>Seamless Tiling</h3>
-          <p>Make textures tile perfectly for large surfaces, architecture, environments, and game assets.</p>
-          <div class="material-preview"></div>
+          <p>Preview generated materials as continuous surfaces before applying them to large architectural scenes.</p>
+          <div class="switch-demo seamless-demo" data-stage="0" aria-label="Seamless material selection preview">
+            <div class="switch-menu">
+              <span>SEAM</span>
+              <span>SEAMLESS</span>
+            </div>
+            <div class="switch-stage">
+              <img class="switch-panel" src="img/Seam.png" alt="Visible texture seam" />
+              <img class="switch-panel" src="img/Seamless.png" alt="Seamless texture result" />
+            </div>
+          </div>
         </div>
-        <div class="card">
-          <h3>Upscale</h3>
-          <p>Enhance low-resolution textures while preserving useful surface detail for close-up renders.</p>
-          <div class="material-preview"></div>
-        </div>
-        <div class="card">
+        <div class="card flatten-card">
           <h3>Flatten Lighting</h3>
-          <p>Remove baked lighting from images to create cleaner albedo textures for physically based materials.</p>
-          <div class="material-preview"></div>
+          <p>Remove baked shadows and lighting so albedo maps stay clean inside physically based materials.</p>
+          <div class="switch-demo flatten-demo" data-stage="0" aria-label="Flatten lighting before and after preview">
+            <div class="switch-menu">
+              <span>UNFLATTEN</span>
+              <span>FLATTEN</span>
+            </div>
+            <div class="switch-stage">
+              <img class="switch-panel" src="img/unflatten.png" alt="Texture with baked lighting" />
+              <img class="switch-panel" src="img/flatten.png" alt="Flattened texture" />
+            </div>
+          </div>
+        </div>
+        <div class="card upscale-card">
+          <h3>Upscale</h3>
+          <p>Recover crisp textile detail from soft source material and prepare textures for close-up rendering.</p>
+          <div class="switch-demo upscale-demo" data-stage="0" aria-label="Upscale texture selection preview">
+            <div class="switch-menu">
+              <span>NO SCALE</span>
+              <span>UPSCALE</span>
+            </div>
+            <div class="switch-stage">
+              <img class="switch-panel" src="img/NoScale.png" alt="Low resolution texture" />
+              <img class="switch-panel" src="img/UpScale.png" alt="Upscaled texture result" />
+            </div>
+          </div>
         </div>
       </div>
     </section>
