@@ -14,7 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const aiComparator = document.querySelector(".ai-comparator");
   const pbrDemo = document.querySelector(".pbr-demo");
   const pbrLight = document.querySelector("#pbr-light");
-  const switchDemos = document.querySelectorAll(".switch-demo");
+  const addonShowcase = document.querySelector(".addon-showcase");
+  const addonStack = document.querySelector(".addon-stack");
+  const addonItems = document.querySelectorAll(".addon-item");
+  const addonTabs = document.querySelectorAll(".addon-tab");
 
   if (!visual || !visualArea || zones.length === 0 || !c || !ctx) {
     return;
@@ -341,9 +344,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const scrollableDistance = Math.max(1, rect.height - viewportHeight);
     const progress = clamp(0, 1, -rect.top / scrollableDistance);
     const reveal = (value, start, end) => clamp(0, 100, ((value - start) / (end - start)) * 100);
-    const first = reveal(progress, .06, .14);
-    const second = reveal(progress, .24, .32);
-    const third = reveal(progress, .42, .50);
+    const first = reveal(progress, .08, .18);
+    const second = reveal(progress, .34, .46);
+    const third = reveal(progress, .64, .78);
 
     aiComparator.style.setProperty("--ai-first", `${first}%`);
     aiComparator.style.setProperty("--ai-second", `${second}%`);
@@ -367,22 +370,84 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("scroll", queueAiUpdate, { passive: true });
   window.addEventListener("resize", queueAiUpdate, { passive: true });
 
-  switchDemos.forEach((switchDemo) => {
-    const panels = switchDemo.querySelectorAll(".switch-panel");
-    let stage = Number(switchDemo.dataset.stage) || 0;
-    const stageCount = Math.max(1, panels.length);
+  if (addonShowcase && addonStack && addonItems.length > 0) {
+    let activeAddon = Number(addonShowcase.dataset.active) || 0;
+    const addonCount = addonItems.length;
+    let addonTransitionTimer = null;
 
-    const setSwitchStage = (nextStage) => {
-      stage = ((nextStage % stageCount) + stageCount) % stageCount;
-      switchDemo.dataset.stage = String(stage);
+    const paintAddonShowcase = (exitingIndex = null, enteringIndex = null) => {
+      addonShowcase.dataset.active = String(activeAddon);
+
+      addonItems.forEach((item) => {
+        const itemIndex = Number(item.dataset.addonIndex);
+        const relativeIndex = (itemIndex - activeAddon + addonCount) % addonCount;
+
+        item.classList.remove("is-active", "is-next", "is-tail", "is-exiting", "is-entering");
+
+        if (itemIndex === exitingIndex) {
+          item.classList.add("is-exiting");
+          return;
+        }
+
+        if (relativeIndex === 0) {
+          item.classList.add("is-active");
+        } else if (relativeIndex === 1) {
+          item.classList.add("is-next");
+        } else {
+          item.classList.add("is-tail");
+
+          if (itemIndex === enteringIndex) {
+            item.classList.add("is-entering");
+          }
+        }
+      });
+
+      addonTabs.forEach((tab) => {
+        const isActive = Number(tab.dataset.addonIndex) === activeAddon;
+        tab.classList.toggle("is-active", isActive);
+        tab.setAttribute("aria-pressed", String(isActive));
+      });
     };
 
-    setSwitchStage(stage);
+    const setAddonShowcase = (nextIndex) => {
+      const previousAddon = activeAddon;
+      activeAddon = ((nextIndex % addonCount) + addonCount) % addonCount;
 
-    switchDemo.addEventListener("click", () => {
-      setSwitchStage(stage + 1);
+      window.clearTimeout(addonTransitionTimer);
+
+      if (previousAddon === activeAddon) {
+        paintAddonShowcase();
+        return;
+      }
+
+      paintAddonShowcase(previousAddon);
+
+      addonTransitionTimer = window.setTimeout(() => {
+        paintAddonShowcase(null, previousAddon);
+      }, 820);
+    };
+
+    addonTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        setAddonShowcase(Number(tab.dataset.addonIndex));
+      });
     });
-  });
+
+    addonStack.addEventListener("click", () => {
+      setAddonShowcase(activeAddon + 1);
+    });
+
+    addonStack.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+
+      event.preventDefault();
+      setAddonShowcase(activeAddon + 1);
+    });
+
+    paintAddonShowcase();
+  }
 
   const setPbrLight = (x, y) => {
     if (!pbrLight) {
@@ -587,7 +652,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resizeParticulate();
     nextParticulateImage();
-    window.setInterval(nextParticulateImage, 6000);
+    window.setInterval(nextParticulateImage, 8000);
     window.addEventListener("resize", resizeParticulate, { passive: true });
     requestAnimationFrame(renderParticulate);
   }

@@ -26,7 +26,7 @@
         <p class="subtitle">Pixel AI analyzes renders and images, then helps generate editable materials, seamless textures, PBR maps, and production-ready material workflows directly inside Blender.</p>
         <div class="actions">
           <a class="button primary" href="#features">Explore Features</a>
-          <a class="button secondary" href="#workflow">View Workflow</a>
+          <a class="button secondary" href="#features">View Workflow</a>
         </div>
         <div class="feature-strip">
           <div class="mini-card">AI Rendering</div>
@@ -61,6 +61,17 @@
       <h2 class="section-title">A complete AI material workflow.</h2>
       <p class="section-text">Designed for artists who want faster material creation without leaving Blender. Use AI to generate, analyze, refine, tile, upscale, and clean textures for professional rendering.</p>
       <div class="grid">
+        <div class="card text-material-card">
+          <h3>Text to Material</h3>
+          <p>Turn material prompts into finished textures through an automatic particle reconstruction preview.</p>
+          <div class="particulate-demo" aria-label="Text to material particle reconstruction">
+            <canvas id="text-material-canvas"></canvas>
+            <div class="particulate-label">
+              <span>TEXT PROMPT</span>
+              <strong>AI MATERIAL SYNTHESIS</strong>
+            </div>
+          </div>
+        </div>
         <div class="card material-rendering-card">
           <h3>Material From Rendering</h3>
           <p>Extract material information from a finished render and rebuild usable material assets for your Blender scene.</p>
@@ -126,79 +137,39 @@
             </svg>
           </div>
         </div>
-        <div class="card text-material-card">
-          <h3>Text to Material</h3>
-          <p>Turn material prompts into finished textures through an automatic particle reconstruction preview.</p>
-          <div class="particulate-demo" aria-label="Text to material particle reconstruction">
-            <canvas id="text-material-canvas"></canvas>
-            <div class="particulate-label">
-              <span>TEXT PROMPT</span>
-              <strong>AI MATERIAL SYNTHESIS</strong>
+        <div class="card addon-showcase-card">
+          <div class="addon-showcase" data-active="0" aria-label="Addon capability comparison showcase">
+            <div class="addon-tabs" aria-label="Addon showcase controls">
+              <button class="addon-tab is-active" type="button" data-addon-index="2">Upscale</button>
+              <button class="addon-tab" type="button" data-addon-index="1">Flatten</button>
+              <button class="addon-tab" type="button" data-addon-index="0">Seamless</button>
             </div>
-          </div>
-        </div>
-        <div class="card seamless-card">
-          <h3>Seamless Tiling</h3>
-          <p>Preview generated materials as continuous surfaces before applying them to large architectural scenes.</p>
-          <div class="switch-demo seamless-demo" data-stage="0" aria-label="Seamless material selection preview">
-            <div class="switch-menu">
-              <span>SEAM</span>
-              <span>SEAMLESS</span>
+            <div class="addon-stack" role="button" tabindex="0" aria-label="Show next addon comparison">
+              <div class="addon-item is-active" data-addon-index="0">
+                <strong class="addon-title">Seamless</strong>
+                <div class="addon-cube">
+                  <img class="addon-before" src="img/Seam.png" alt="Visible texture seam" />
+                  <img class="addon-after" src="img/Seamless.png" alt="Seamless texture result" />
+                  <span class="addon-split-line"></span>
+                </div>
+              </div>
+              <div class="addon-item is-next" data-addon-index="1">
+                <strong class="addon-title">Flatten</strong>
+                <div class="addon-cube">
+                  <img class="addon-before" src="img/unflatten.png" alt="Texture with baked lighting" />
+                  <img class="addon-after" src="img/flatten.png" alt="Flattened texture result" />
+                  <span class="addon-split-line"></span>
+                </div>
+              </div>
+              <div class="addon-item is-tail" data-addon-index="2">
+                <strong class="addon-title">Upscale</strong>
+                <div class="addon-cube">
+                  <img class="addon-before" src="img/NoScale.png" alt="Low resolution texture" />
+                  <img class="addon-after" src="img/UpScale.png" alt="Upscaled texture result" />
+                  <span class="addon-split-line"></span>
+                </div>
+              </div>
             </div>
-            <div class="switch-stage">
-              <img class="switch-panel" src="img/Seam.png" alt="Visible texture seam" />
-              <img class="switch-panel" src="img/Seamless.png" alt="Seamless texture result" />
-            </div>
-          </div>
-        </div>
-        <div class="card flatten-card">
-          <h3>Flatten Lighting</h3>
-          <p>Remove baked shadows and lighting so albedo maps stay clean inside physically based materials.</p>
-          <div class="switch-demo flatten-demo" data-stage="0" aria-label="Flatten lighting before and after preview">
-            <div class="switch-menu">
-              <span>UNFLATTEN</span>
-              <span>FLATTEN</span>
-            </div>
-            <div class="switch-stage">
-              <img class="switch-panel" src="img/unflatten.png" alt="Texture with baked lighting" />
-              <img class="switch-panel" src="img/flatten.png" alt="Flattened texture" />
-            </div>
-          </div>
-        </div>
-        <div class="card upscale-card">
-          <h3>Upscale</h3>
-          <p>Recover crisp textile detail from soft source material and prepare textures for close-up rendering.</p>
-          <div class="switch-demo upscale-demo" data-stage="0" aria-label="Upscale texture selection preview">
-            <div class="switch-menu">
-              <span>NO SCALE</span>
-              <span>UPSCALE</span>
-            </div>
-            <div class="switch-stage">
-              <img class="switch-panel" src="img/NoScale.png" alt="Low resolution texture" />
-              <img class="switch-panel" src="img/UpScale.png" alt="Upscaled texture result" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="workflow">
-      <h2 class="section-title">From visual reference to PBR material.</h2>
-      <p class="section-text">Show customers the transformation clearly: input image, AI analysis, generated maps, then final material preview.</p>
-      <div class="workflow">
-        <div class="big-panel">
-          <h3>Generated Material Preview</h3>
-          <p class="section-text">A cinematic material sphere helps customers instantly understand the output quality.</p>
-          <div class="sphere"></div>
-        </div>
-        <div class="big-panel">
-          <h3>PBR Map Output</h3>
-          <p class="section-text">Present generated maps in a clean grid for a premium technical feel.</p>
-          <div class="maps">
-            <div class="map">ALBEDO</div>
-            <div class="map">NORMAL</div>
-            <div class="map">ROUGHNESS</div>
-            <div class="map">HEIGHT</div>
           </div>
         </div>
       </div>
